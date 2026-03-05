@@ -1,0 +1,11 @@
+services:
+  trending-scraper:
+    build: .
+    container_name: trending-linkedin-autopilot
+    restart: unless-stopped
+    volumes:
+      - ./output:/app/output
+    environment:
+      - TZ=UTC
+    # Override schedule: every Wednesday at 10:30 AM
+    # command: python -m trending_linkedin_tool.scheduler --day wednesday --time 10:30

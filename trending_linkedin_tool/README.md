@@ -59,9 +59,46 @@ Edit `config.py` to:
 - Change the number of **LinkedIn posts** generated
 - Add/remove **Reddit subreddits**
 
-## Scheduling (Optional)
+## Autopilot Deployment
 
-To run weekly, add a cron job:
+### Option 1: Built-in Scheduler
+
+```bash
+# Run now + schedule weekly every Monday at 9 AM
+python -m trending_linkedin_tool.scheduler
+
+# Custom day and time
+python -m trending_linkedin_tool.scheduler --day wednesday --time 14:00
+
+# Run once and exit (no scheduling)
+python -m trending_linkedin_tool.scheduler --once
+
+# Skip initial run, only run on schedule
+python -m trending_linkedin_tool.scheduler --no-initial-run
+```
+
+### Option 2: Docker (Recommended for Production)
+
+```bash
+# Build and run with docker-compose (runs autopilot scheduler)
+docker compose up -d
+
+# View logs
+docker compose logs -f
+
+# Run once via Docker
+docker run --rm -v $(pwd)/output:/app/output trending-linkedin python -m trending_linkedin_tool --once
+```
+
+### Option 3: GitHub Actions (Serverless)
+
+The repository includes a `.github/workflows/weekly-trends.yml` workflow that:
+- Runs every Monday at 9 AM UTC automatically
+- Can be triggered manually from the Actions tab
+- Saves results as downloadable artifacts (retained 90 days)
+- Commits results back to the repository
+
+### Option 4: System Cron
 
 ```bash
 # Every Monday at 9 AM

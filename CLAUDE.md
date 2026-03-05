@@ -16,10 +16,15 @@ Claude-Repo---Saps/
 ├── CLAUDE.md                        # This file — AI assistant guidelines
 ├── README.md                        # Project description
 ├── .gitignore                       # Git ignore rules
+├── Dockerfile                       # Container image definition
+├── docker-compose.yml               # Docker Compose for autopilot mode
+├── .github/workflows/
+│   └── weekly-trends.yml            # GitHub Actions weekly automation
 └── trending_linkedin_tool/          # Main application package
     ├── __init__.py
     ├── __main__.py                  # python -m entry point
     ├── main.py                      # Pipeline orchestrator
+    ├── scheduler.py                 # Autopilot scheduler (weekly cron)
     ├── config.py                    # Categories, keywords, settings
     ├── requirements.txt             # Python dependencies
     ├── README.md                    # Tool-specific documentation
@@ -94,9 +99,18 @@ General guidelines:
 - Avoid over-engineering — solve the problem at hand.
 - Don't add unused imports, dead code, or speculative abstractions.
 
+## Deployment / Autopilot
+
+The tool supports 4 deployment modes:
+
+1. **Built-in scheduler** — `python -m trending_linkedin_tool.scheduler` (runs weekly in-process)
+2. **Docker** — `docker compose up -d` (containerized autopilot with restart policy)
+3. **GitHub Actions** — `.github/workflows/weekly-trends.yml` (serverless, every Monday 9 AM UTC)
+4. **System cron** — Standard crontab entry
+
 ## CI/CD
 
-No CI/CD pipeline is configured. When one is added, document it here.
+GitHub Actions workflow (`.github/workflows/weekly-trends.yml`) runs the pipeline weekly, uploads artifacts, and commits results to the repo.
 
 ## Key Guidelines for AI Assistants
 
