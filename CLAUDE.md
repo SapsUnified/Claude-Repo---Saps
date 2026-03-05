@@ -7,7 +7,7 @@ This is the **Claude-Repo---Saps** repository owned by **SapsUnified**. It conta
 - **Primary branch:** `master`
 - **Remote:** `origin` (GitHub via SapsUnified organization)
 - **Language:** Python 3.10+
-- **Key dependencies:** `requests`, `beautifulsoup4`, `feedparser`, `schedule`
+- **Key dependencies:** `requests`, `beautifulsoup4`, `feedparser`, `schedule`, `flask`, `openpyxl`
 - **Frequency:** Daily (autopilot)
 
 ## Repository Structure
@@ -41,10 +41,16 @@ Claude-Repo---Saps/
     │   ├── __init__.py
     │   ├── categorizer.py           # Keyword-based topic categorization
     │   └── ranker.py                # Engagement ranking + deduplication
-    └── generator/                   # Output layer
+    ├── generator/                   # Output layer
+    │   ├── __init__.py
+    │   ├── linkedin_posts.py        # LinkedIn post draft generator
+    │   ├── twitter_posts.py         # Twitter/X post draft generator (280 chars)
+    │   └── report_exporter.py       # Excel + text report exporter
+    └── webapp/                      # Flask web dashboard
         ├── __init__.py
-        ├── linkedin_posts.py        # LinkedIn post draft generator
-        └── twitter_posts.py         # Twitter/X post draft generator (280 chars)
+        ├── app.py                   # Flask app with API endpoints
+        └── templates/
+            └── dashboard.html       # Dashboard UI template
 ```
 
 ## Development Workflow
@@ -86,7 +92,7 @@ python -m trending_linkedin_tool --output-dir my_reports
 2. **Categorize** — Assigns topics to Software Dev / Web Dev / AI Dev categories
 3. **Rank** — Sorts by engagement, deduplicates, boosts cross-platform items
 4. **Generate** — Creates 5 LinkedIn + 5 Twitter/X post drafts with hooks, CTAs, and hashtags
-5. **Output** — Saves JSON reports to `output/` directory
+5. **Output** — Saves Excel + text reports to `output/` directory, viewable via web dashboard
 
 ## Testing
 
@@ -104,12 +110,13 @@ General guidelines:
 
 ## Deployment / Autopilot
 
-The tool supports 4 deployment modes:
+The tool supports 5 modes:
 
-1. **Built-in scheduler** — `python -m trending_linkedin_tool.scheduler` (runs daily in-process)
-2. **Docker** — `docker compose up -d` (containerized autopilot with restart policy)
-3. **GitHub Actions** — `.github/workflows/daily-trends.yml` (serverless, every day 9 AM UTC)
-4. **System cron** — Standard crontab entry
+1. **Web Dashboard** — `python -m trending_linkedin_tool.webapp.app` (browse at http://localhost:5000)
+2. **Built-in scheduler** — `python -m trending_linkedin_tool.scheduler` (runs daily in-process)
+3. **Docker** — `docker compose up -d` (containerized autopilot with restart policy)
+4. **GitHub Actions** — `.github/workflows/daily-trends.yml` (serverless, every day 9 AM UTC)
+5. **System cron** — Standard crontab entry
 
 ### Environment Variables
 
