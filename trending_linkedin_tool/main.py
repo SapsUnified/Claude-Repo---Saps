@@ -11,7 +11,6 @@ Usage:
 """
 
 import argparse
-import json
 import logging
 import os
 from datetime import datetime
@@ -28,6 +27,7 @@ from trending_linkedin_tool.analyzer.categorizer import TopicCategorizer
 from trending_linkedin_tool.analyzer.ranker import TopicRanker
 from trending_linkedin_tool.generator.linkedin_posts import LinkedInPostGenerator
 from trending_linkedin_tool.generator.twitter_posts import TwitterPostGenerator
+from trending_linkedin_tool.generator.report_exporter import ReportExporter
 
 logging.basicConfig(
     level=logging.INFO,
@@ -96,12 +96,12 @@ def run(output_dir: str | None = None):
     twitter_generator = TwitterPostGenerator()
     twitter_posts = twitter_generator.generate(ranked)
 
-    # --- Step 5: Save outputs ---
+    # --- Step 5: Save outputs as Excel and text ---
     logger.info("=" * 60)
-    logger.info("STEP 5: Saving results")
+    logger.info("STEP 5: Saving results (Excel + text)")
     logger.info("=" * 60)
 
-    # Save trending topics report
+    # Build trending report dict for export
     trending_report = {}
     for cat_key, items in ranked.items():
         trending_report[CATEGORIES[cat_key]["label"]] = [
@@ -115,22 +115,17 @@ def run(output_dir: str | None = None):
             for item in items
         ]
 
-    report_path = os.path.join(output_dir, f"trending_topics_{timestamp}.json")
-    with open(report_path, "w", encoding="utf-8") as f:
-        json.dump(trending_report, f, indent=2, ensure_ascii=False)
-    logger.info("Trending topics saved to: %s", report_path)
+    exporter = ReportExporter()
 
-    # Save LinkedIn posts
-    linkedin_path = os.path.join(output_dir, f"linkedin_posts_{timestamp}.json")
-    with open(linkedin_path, "w", encoding="utf-8") as f:
-        json.dump(linkedin_posts, f, indent=2, ensure_ascii=False)
-    logger.info("LinkedIn posts saved to: %s", linkedin_path)
+    # Save Excel report (.xlsx)
+    excel_path = exporter.save_excel(
+        output_dir, timestamp, trending_report, linkedin_posts, twitter_posts
+    )
 
-    # Save Twitter posts
-    twitter_path = os.path.join(output_dir, f"twitter_posts_{timestamp}.json")
-    with open(twitter_path, "w", encoding="utf-8") as f:
-        json.dump(twitter_posts, f, indent=2, ensure_ascii=False)
-    logger.info("Twitter posts saved to: %s", twitter_path)
+    # Save plain-text report (.txt)
+    text_path = exporter.save_text(
+        output_dir, timestamp, trending_report, linkedin_posts, twitter_posts
+    )
 
     # Print summary to console
     print("\n" + "=" * 60)
@@ -165,7 +160,9 @@ def run(output_dir: str | None = None):
         print(f"\nSource: {post['source_url']}")
         print()
 
-    print(f"\nFull results saved to: {output_dir}/")
+    print(f"\nReports saved to:")
+    print(f"  Excel: {excel_path}")
+    print(f"  Text:  {text_path}")
     return {
         "trending_report": trending_report,
         "linkedin_posts": linkedin_posts,
