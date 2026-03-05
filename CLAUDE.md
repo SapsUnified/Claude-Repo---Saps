@@ -2,12 +2,13 @@
 
 ## Repository Overview
 
-This is the **Claude-Repo---Saps** repository owned by **SapsUnified**. It contains a Python-based **Trending Topics Scraper & LinkedIn Post Recommender** tool.
+This is the **Claude-Repo---Saps** repository owned by **SapsUnified**. It contains a Python-based **Trending Topics Scraper & Social Post Recommender** tool that runs daily and generates posts for LinkedIn and Twitter/X.
 
 - **Primary branch:** `master`
 - **Remote:** `origin` (GitHub via SapsUnified organization)
 - **Language:** Python 3.10+
-- **Key dependencies:** `requests`, `beautifulsoup4`, `feedparser`
+- **Key dependencies:** `requests`, `beautifulsoup4`, `feedparser`, `schedule`
+- **Frequency:** Daily (autopilot)
 
 ## Repository Structure
 
@@ -19,29 +20,31 @@ Claude-Repo---Saps/
 ├── Dockerfile                       # Container image definition
 ├── docker-compose.yml               # Docker Compose for autopilot mode
 ├── .github/workflows/
-│   └── weekly-trends.yml            # GitHub Actions weekly automation
+│   └── daily-trends.yml             # GitHub Actions daily automation
 └── trending_linkedin_tool/          # Main application package
     ├── __init__.py
     ├── __main__.py                  # python -m entry point
     ├── main.py                      # Pipeline orchestrator
-    ├── scheduler.py                 # Autopilot scheduler (weekly cron)
+    ├── scheduler.py                 # Autopilot scheduler (daily cron)
     ├── config.py                    # Categories, keywords, settings
     ├── requirements.txt             # Python dependencies
     ├── README.md                    # Tool-specific documentation
     ├── scrapers/                    # Data collection layer
     │   ├── __init__.py
     │   ├── base.py                  # Base scraper + ScrapedItem dataclass
-    │   ├── github_trending.py       # GitHub Trending (weekly repos)
-    │   ├── devto_scraper.py         # Dev.to top articles (7-day)
+    │   ├── github_trending.py       # GitHub Trending (daily repos)
+    │   ├── devto_scraper.py         # Dev.to top articles (daily)
     │   ├── hackernews_scraper.py    # Hacker News top stories (Firebase API)
-    │   └── reddit_scraper.py        # Reddit tech subreddits (weekly top)
+    │   ├── reddit_scraper.py        # Reddit tech subreddits (daily top)
+    │   └── twitter_scraper.py       # Twitter/X trending tech topics
     ├── analyzer/                    # Processing layer
     │   ├── __init__.py
     │   ├── categorizer.py           # Keyword-based topic categorization
     │   └── ranker.py                # Engagement ranking + deduplication
     └── generator/                   # Output layer
         ├── __init__.py
-        └── linkedin_posts.py        # LinkedIn post draft generator
+        ├── linkedin_posts.py        # LinkedIn post draft generator
+        └── twitter_posts.py         # Twitter/X post draft generator (280 chars)
 ```
 
 ## Development Workflow
@@ -79,10 +82,10 @@ python -m trending_linkedin_tool --output-dir my_reports
 
 ### Pipeline Flow
 
-1. **Scrape** — Collects data from GitHub Trending, Dev.to, Hacker News, Reddit
+1. **Scrape** — Collects daily data from GitHub Trending, Dev.to, Hacker News, Reddit, Twitter/X
 2. **Categorize** — Assigns topics to Software Dev / Web Dev / AI Dev categories
 3. **Rank** — Sorts by engagement, deduplicates, boosts cross-platform items
-4. **Generate** — Creates 5 LinkedIn post drafts with hooks, CTAs, and hashtags
+4. **Generate** — Creates 5 LinkedIn + 5 Twitter/X post drafts with hooks, CTAs, and hashtags
 5. **Output** — Saves JSON reports to `output/` directory
 
 ## Testing
@@ -103,14 +106,18 @@ General guidelines:
 
 The tool supports 4 deployment modes:
 
-1. **Built-in scheduler** — `python -m trending_linkedin_tool.scheduler` (runs weekly in-process)
+1. **Built-in scheduler** — `python -m trending_linkedin_tool.scheduler` (runs daily in-process)
 2. **Docker** — `docker compose up -d` (containerized autopilot with restart policy)
-3. **GitHub Actions** — `.github/workflows/weekly-trends.yml` (serverless, every Monday 9 AM UTC)
+3. **GitHub Actions** — `.github/workflows/daily-trends.yml` (serverless, every day 9 AM UTC)
 4. **System cron** — Standard crontab entry
+
+### Environment Variables
+
+- `TWITTER_BEARER_TOKEN` — (Optional) Twitter API v2 bearer token for better X data
 
 ## CI/CD
 
-GitHub Actions workflow (`.github/workflows/weekly-trends.yml`) runs the pipeline weekly, uploads artifacts, and commits results to the repo.
+GitHub Actions workflow (`.github/workflows/daily-trends.yml`) runs the pipeline daily, uploads artifacts, and commits results to the repo.
 
 ## Key Guidelines for AI Assistants
 

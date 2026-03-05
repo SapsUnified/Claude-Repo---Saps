@@ -8,11 +8,11 @@ from trending_linkedin_tool.scrapers.base import BaseScraper, ScrapedItem
 
 logger = logging.getLogger(__name__)
 
-GITHUB_TRENDING_URL = "https://github.com/trending?since=weekly"
+GITHUB_TRENDING_URL = "https://github.com/trending?since=daily"
 
 
 class GithubTrendingScraper(BaseScraper):
-    """Scrapes GitHub's weekly trending repositories page."""
+    """Scrapes GitHub's daily trending repositories page."""
 
     source_name = "github_trending"
 

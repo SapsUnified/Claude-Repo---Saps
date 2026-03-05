@@ -1,4 +1,10 @@
-"""Configuration for the trending topics scraper and LinkedIn post generator."""
+"""Configuration for the trending topics scraper and post generator."""
+
+# Frequency: "daily" or "weekly"
+SCRAPE_FREQUENCY = "daily"
+
+# Platforms to generate posts for
+PLATFORMS = ["linkedin", "twitter"]
 
 # Categories to track
 CATEGORIES = {
@@ -32,8 +38,9 @@ CATEGORIES = {
 # Number of top trending topics per category
 TOP_TOPICS_PER_CATEGORY = 7
 
-# Number of LinkedIn posts to generate
+# Number of posts to generate per platform
 NUM_LINKEDIN_POSTS = 5
+NUM_TWITTER_POSTS = 5
 
 # Reddit subreddits to scrape
 REDDIT_SUBREDDITS = ["programming", "webdev", "artificial", "MachineLearning"]

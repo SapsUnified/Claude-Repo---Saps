@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
-Trending Topics Scraper & LinkedIn Post Recommender
+Trending Topics Scraper & Social Post Recommender
 
-Scrapes GitHub Trending, Dev.to, Hacker News, and Reddit for weekly
+Scrapes GitHub Trending, Dev.to, Hacker News, Reddit, and Twitter/X for daily
 trending topics in Software Development, Web Development, and AI.
-Generates 5 ready-to-post LinkedIn drafts from the top trends.
+Generates 5 ready-to-post drafts each for LinkedIn and Twitter/X.
 
 Usage:
     python -m trending_linkedin_tool.main [--output-dir OUTPUT_DIR]
@@ -22,10 +22,12 @@ from trending_linkedin_tool.scrapers import (
     GithubTrendingScraper,
     HackerNewsScraper,
     RedditScraper,
+    TwitterScraper,
 )
 from trending_linkedin_tool.analyzer.categorizer import TopicCategorizer
 from trending_linkedin_tool.analyzer.ranker import TopicRanker
 from trending_linkedin_tool.generator.linkedin_posts import LinkedInPostGenerator
+from trending_linkedin_tool.generator.twitter_posts import TwitterPostGenerator
 
 logging.basicConfig(
     level=logging.INFO,
@@ -42,7 +44,7 @@ def run(output_dir: str | None = None):
 
     # --- Step 1: Scrape all sources ---
     logger.info("=" * 60)
-    logger.info("STEP 1: Scraping trending topics from all sources")
+    logger.info("STEP 1: Scraping daily trending topics from all sources")
     logger.info("=" * 60)
 
     scrapers = [
@@ -50,6 +52,7 @@ def run(output_dir: str | None = None):
         DevToScraper(),
         HackerNewsScraper(),
         RedditScraper(),
+        TwitterScraper(),
     ]
 
     all_items = []
@@ -82,13 +85,16 @@ def run(output_dir: str | None = None):
     ranker = TopicRanker()
     ranked = ranker.rank(categorized)
 
-    # --- Step 4: Generate LinkedIn posts ---
+    # --- Step 4: Generate posts for LinkedIn and Twitter ---
     logger.info("=" * 60)
-    logger.info("STEP 4: Generating LinkedIn post drafts")
+    logger.info("STEP 4: Generating LinkedIn and Twitter/X post drafts")
     logger.info("=" * 60)
 
-    generator = LinkedInPostGenerator()
-    posts = generator.generate(ranked)
+    linkedin_generator = LinkedInPostGenerator()
+    linkedin_posts = linkedin_generator.generate(ranked)
+
+    twitter_generator = TwitterPostGenerator()
+    twitter_posts = twitter_generator.generate(ranked)
 
     # --- Step 5: Save outputs ---
     logger.info("=" * 60)
@@ -115,19 +121,25 @@ def run(output_dir: str | None = None):
     logger.info("Trending topics saved to: %s", report_path)
 
     # Save LinkedIn posts
-    posts_path = os.path.join(output_dir, f"linkedin_posts_{timestamp}.json")
-    with open(posts_path, "w", encoding="utf-8") as f:
-        json.dump(posts, f, indent=2, ensure_ascii=False)
-    logger.info("LinkedIn posts saved to: %s", posts_path)
+    linkedin_path = os.path.join(output_dir, f"linkedin_posts_{timestamp}.json")
+    with open(linkedin_path, "w", encoding="utf-8") as f:
+        json.dump(linkedin_posts, f, indent=2, ensure_ascii=False)
+    logger.info("LinkedIn posts saved to: %s", linkedin_path)
+
+    # Save Twitter posts
+    twitter_path = os.path.join(output_dir, f"twitter_posts_{timestamp}.json")
+    with open(twitter_path, "w", encoding="utf-8") as f:
+        json.dump(twitter_posts, f, indent=2, ensure_ascii=False)
+    logger.info("Twitter posts saved to: %s", twitter_path)
 
     # Print summary to console
     print("\n" + "=" * 60)
-    print("  WEEKLY TRENDING TOPICS REPORT")
+    print("  DAILY TRENDING TOPICS REPORT")
     print(f"  Generated: {timestamp}")
     print("=" * 60)
 
     for cat_label, items_data in trending_report.items():
-        print(f"\n📌 {cat_label}")
+        print(f"\n  {cat_label}")
         print("-" * 40)
         for i, item in enumerate(items_data, 1):
             print(f"  {i}. {item['title']}")
@@ -137,19 +149,33 @@ def run(output_dir: str | None = None):
     print("  LINKEDIN POST RECOMMENDATIONS")
     print("=" * 60)
 
-    for post in posts:
+    for post in linkedin_posts:
         print(f"\n--- Post #{post['post_number']} ({post['category']}) ---")
         print(post["full_post"])
         print(f"\nSource: {post['source_url']}")
         print()
 
+    print("\n" + "=" * 60)
+    print("  TWITTER/X POST RECOMMENDATIONS")
+    print("=" * 60)
+
+    for post in twitter_posts:
+        print(f"\n--- Tweet #{post['post_number']} ({post['category']}) [{post['char_count']} chars] ---")
+        print(post["full_post"])
+        print(f"\nSource: {post['source_url']}")
+        print()
+
     print(f"\nFull results saved to: {output_dir}/")
-    return {"trending_report": trending_report, "linkedin_posts": posts}
+    return {
+        "trending_report": trending_report,
+        "linkedin_posts": linkedin_posts,
+        "twitter_posts": twitter_posts,
+    }
 
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Scrape trending dev topics and generate LinkedIn posts"
+        description="Scrape daily trending dev topics and generate LinkedIn + Twitter posts"
     )
     parser.add_argument(
         "--output-dir",

@@ -1,4 +1,4 @@
-"""Scraper for Dev.to top articles (past week)."""
+"""Scraper for Dev.to top articles (past day)."""
 
 import logging
 
@@ -6,11 +6,11 @@ from trending_linkedin_tool.scrapers.base import BaseScraper, ScrapedItem
 
 logger = logging.getLogger(__name__)
 
-DEVTO_API_URL = "https://dev.to/api/articles?top=7&per_page=30"
+DEVTO_API_URL = "https://dev.to/api/articles?top=1&per_page=30"
 
 
 class DevToScraper(BaseScraper):
-    """Scrapes Dev.to top articles from the past week via their public API."""
+    """Scrapes Dev.to top articles from the past day via their public API."""
 
     source_name = "devto"
 

@@ -7,11 +7,11 @@ from trending_linkedin_tool.config import REDDIT_SUBREDDITS
 
 logger = logging.getLogger(__name__)
 
-REDDIT_URL = "https://www.reddit.com/r/{}/top.json?t=week&limit=15"
+REDDIT_URL = "https://www.reddit.com/r/{}/top.json?t=day&limit=15"
 
 
 class RedditScraper(BaseScraper):
-    """Scrapes Reddit top weekly posts from configured subreddits."""
+    """Scrapes Reddit top daily posts from configured subreddits."""
 
     source_name = "reddit"
 
