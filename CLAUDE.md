@@ -2,20 +2,42 @@
 
 ## Repository Overview
 
-This is the **Claude-Repo---Saps** repository owned by **SapsUnified**. It is currently in its initial setup phase — a skeleton repository ready for development.
+This is the **Claude-Repo---Saps** repository owned by **SapsUnified**. It contains a Python-based **Trending Topics Scraper & LinkedIn Post Recommender** tool.
 
 - **Primary branch:** `master`
 - **Remote:** `origin` (GitHub via SapsUnified organization)
+- **Language:** Python 3.10+
+- **Key dependencies:** `requests`, `beautifulsoup4`, `feedparser`
 
 ## Repository Structure
 
 ```
 Claude-Repo---Saps/
-├── CLAUDE.md        # This file — AI assistant guidelines
-└── README.md        # Project description (placeholder)
+├── CLAUDE.md                        # This file — AI assistant guidelines
+├── README.md                        # Project description
+├── .gitignore                       # Git ignore rules
+└── trending_linkedin_tool/          # Main application package
+    ├── __init__.py
+    ├── __main__.py                  # python -m entry point
+    ├── main.py                      # Pipeline orchestrator
+    ├── config.py                    # Categories, keywords, settings
+    ├── requirements.txt             # Python dependencies
+    ├── README.md                    # Tool-specific documentation
+    ├── scrapers/                    # Data collection layer
+    │   ├── __init__.py
+    │   ├── base.py                  # Base scraper + ScrapedItem dataclass
+    │   ├── github_trending.py       # GitHub Trending (weekly repos)
+    │   ├── devto_scraper.py         # Dev.to top articles (7-day)
+    │   ├── hackernews_scraper.py    # Hacker News top stories (Firebase API)
+    │   └── reddit_scraper.py        # Reddit tech subreddits (weekly top)
+    ├── analyzer/                    # Processing layer
+    │   ├── __init__.py
+    │   ├── categorizer.py           # Keyword-based topic categorization
+    │   └── ranker.py                # Engagement ranking + deduplication
+    └── generator/                   # Output layer
+        ├── __init__.py
+        └── linkedin_posts.py        # LinkedIn post draft generator
 ```
-
-> **Note:** This repository is newly initialized. Update this section as source code, configuration, and tooling are added.
 
 ## Development Workflow
 
@@ -39,21 +61,24 @@ Claude-Repo---Saps/
 
 ## Build & Run
 
-No build system, package manager, or dependencies are configured yet. When they are added, document the commands here:
-
 ```bash
 # Install dependencies
-# (not yet configured)
+pip install -r trending_linkedin_tool/requirements.txt
 
-# Run the project
-# (not yet configured)
+# Run the tool
+python -m trending_linkedin_tool
 
-# Run tests
-# (not yet configured)
-
-# Lint / format
-# (not yet configured)
+# Run with custom output directory
+python -m trending_linkedin_tool --output-dir my_reports
 ```
+
+### Pipeline Flow
+
+1. **Scrape** — Collects data from GitHub Trending, Dev.to, Hacker News, Reddit
+2. **Categorize** — Assigns topics to Software Dev / Web Dev / AI Dev categories
+3. **Rank** — Sorts by engagement, deduplicates, boosts cross-platform items
+4. **Generate** — Creates 5 LinkedIn post drafts with hooks, CTAs, and hashtags
+5. **Output** — Saves JSON reports to `output/` directory
 
 ## Testing
 
@@ -63,7 +88,7 @@ No test framework is set up yet. When tests are added:
 
 ## Code Style & Conventions
 
-No linter or formatter is configured yet. When they are added, follow the project's configured rules. General guidelines:
+General guidelines:
 
 - Keep code simple and readable.
 - Avoid over-engineering — solve the problem at hand.
